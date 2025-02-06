@@ -20,6 +20,13 @@ Easy installation just by running the following command:
 ```bash
 $ go install github.com/abanoub-samy-farhan/safe-pass
 ```
+or 
+```bash
+$ git clone https://github.com/abanoub-samy-farhan/safe-pass
+$ cd safe-pass
+$ go build
+$ go install
+```
 Also, for autocompleting feature, you have to run this command for setting up your envorinement according to your system:
 
 - Linux:

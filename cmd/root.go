@@ -33,17 +33,7 @@ var rootCmd = &cobra.Command{
 	Short: "A CLI app for securly storing passwords, keys and tokens for you :)",
 	Long: `safe-pass is a tool for managing sensitive data such as passwords, keys
 and tokens. It uses a redis database for storing the data, and provides a
-simple and secure way to interact with the data.
-
-The tool is designed to be used from the command line, and provides a number of
-commands to add, list, retrieve and delete data from the database.
-
-The tool also provides a setup command, which will prompt the user to enter a
-master password. This password is used to encrypt the data in the database,
-and is the only way to access the data.
-
-The tool is written in Go, and is designed to be cross-platform and
-extensible.`,
+simple and secure way to interact with the data.`,
 	ValidArgs: []string{"add", "show", "delete", "edit", "passgen"},
 	Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }

@@ -46,7 +46,7 @@ func addData(cmd *cobra.Command, args []string){
 
 
 	if value != "" {
-		fmt.Printf(`The domain and tag provided are already found, tag will be overrided. Proceed? (Y/n) `)
+		fmt.Printf("The domain and tag provided are already found, tag will be overrided. \n\nProceed? (Y/n) ")
 		var proceed string
 		fmt.Scanln(&proceed)
 		if strings.ToUpper(proceed) == "N" || strings.ToUpper(proceed) != "Y" {
@@ -62,7 +62,8 @@ func addData(cmd *cobra.Command, args []string){
 		return
 	}
 
-	fmt.Println("Your Data is saved successfully!\nRun `safe-pass show -c", key.category, " -d", key.domain,  "-t", key.tag, "to view it`")
+	fmt.Println("Your Data is saved successfully!\nRun", Red + 
+	"`safe-pass show -c", key.category, " -d", key.domain,  "-t", key.tag + Reset + "`to view it")
 }
 
 func init(){

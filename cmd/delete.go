@@ -31,7 +31,7 @@ func deleteData(cmd *cobra.Command, args []string) {
 
 	var assertion string
 	fmt.Printf("Are you sure you want to delete the data for \nCategory " + Red + category + Reset +
-	", domain " + Red + domain + Reset + " and tag " + Red + tag + Reset + " ? (Y/n) ")
+	", domain " + Red + domain + Reset + " and tag " + Red + tag + Reset + " ? \n\nProceed (Y/n) ")
 	fmt.Scanln(&assertion)
 	if strings.ToUpper(assertion) != "Y" {
 		fmt.Println("Action cancelled")

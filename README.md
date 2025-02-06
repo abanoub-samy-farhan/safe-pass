@@ -1,10 +1,7 @@
 # safe-pass
 a GO CLI Tool for handling password management using Redis database for storing the local encypted passwords. Not only password, you can safe anykind of secure keys and tokens for later use, all in a secure and safe mannar for your convenice :).
 
-A pre-setup domain would include the following stuff
-- Passwords (default category)
-- Acess Tokens (Like Github or any others)
-- API keys
+NOTE: This is still a beta version of the cli, if you faced any problems please reported through and issue or if you wish to contribute that's completely welcomed, see [Contribution](#contribution).
 
 # Table of Content
 
@@ -63,7 +60,7 @@ The available commands are:
 ### `add`
 | Command | Description | Flags |
 | --- | --- | --- |
-| `safe-pass add [password\|key\|token] -c <category> -d <domain> -t <tag>` | Add a password, key or token to the database | `-c --category`, `-d --domain`, `-t --tag` |
+| `safe-pass add [password\|key\|token] -c <category> -d <domain> -t <tag>` | Add a password, key or token to the database, NOTE: Don't include hyphins in category, domain or tag | `-c --category`, `-d --domain`, `-t --tag` |
 
 ### `show`
 | Command | Description | Flags |
@@ -109,7 +106,7 @@ Time elapsed:  114.465µs
 
 ## Contribution
 
-Contributions are welcome! If you'd like to contribute to this project just contact me and we can collaborate on the project.
+Contributions are welcome! If you'd like to contribute to this project just contact me and we can collaborate on the project. [ContactMe](mailto:abanoubsamy2341@gmail.com)
 
 ## TO-DO
 

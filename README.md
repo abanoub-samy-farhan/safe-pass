@@ -114,11 +114,11 @@ Contributions are welcome! If you'd like to contribute to this project just cont
 ## TO-DO
 
 - [x] Encrypt passwords using `crypto/aes` lib
-- [-] Master Password: Making a local authentication for the user to ensure security of the password saved from frauds
+- [x] Master Password: Making a local authentication for the user to ensure security of the password saved from frauds
 - [ ] Setup: Making a user-friendly setup, ensuring user have the required dependancies (`redis` for data storage), and setting the Master Password for accessing the data securly.
 - [x] Add data: Adding password or key to the database, including the domain and tag to remeber the usecase of data stored.
 - [x] Retrive data: returning the password of the requested domain.
-- [-] Export Data: the user could export all data found in the database in an easy formatted form (such as `JSON` or `TXT`)
+- [ ] Export Data: the user could export all data found in the database in an easy formatted form (such as `JSON` or `TXT`)
 - [x] Cross-platform compatibility: Making the tool opperating for both `windows` and `linux`. Starting with linux tho.
 
 ## License

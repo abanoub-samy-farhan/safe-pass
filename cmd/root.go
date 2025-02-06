@@ -10,6 +10,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type Feild struct {
+	category string
+	domain string
+	tag string
+}
+
+var Reset = "\033[0m" 
+var Red = "\033[31m" 
+var Green = "\033[32m" 
+var Yellow = "\033[33m" 
+var Blue = "\033[34m" 
+var Magenta = "\033[35m" 
+var Cyan = "\033[36m" 
+var Gray = "\033[37m" 
+var White = "\033[97m"
 
 
 // rootCmd represents the base command when called without any subcommands
@@ -29,13 +44,10 @@ and is the only way to access the data.
 
 The tool is written in Go, and is designed to be cross-platform and
 extensible.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	ValidArgs: []string{"add", "show", "delete", "edit", "passgen"},
+	Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -44,14 +56,6 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.safe-pass.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 

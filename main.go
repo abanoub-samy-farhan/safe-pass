@@ -7,8 +7,13 @@ package main
 
 import (
 	"github.com/abanoub-samy-farhan/safe-pass/cmd"
+	"github.com/abanoub-samy-farhan/safe-pass/utils"
+	"os"
 )
 
 func main() {
+	if !utils.Auth() {
+		os.Exit(1)
+	}
 	cmd.Execute()
 }

@@ -27,7 +27,6 @@ func addData(cmd *cobra.Command, args []string){
 	}
 
 	data := args[0]
-	fmt.Println(data)
 	category, _:= cmd.Flags().GetString("category")
 	domain, _:= cmd.Flags().GetString("domain")
 	tag, _ := cmd.Flags().GetString("tag")

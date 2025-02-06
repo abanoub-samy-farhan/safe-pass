@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"github.com/spf13/cobra"
+	"github.com/atotto/clipboard"
 )
 
 var passgenCmd = &cobra.Command{
@@ -43,7 +44,10 @@ func generatePassword(cmd *cobra.Command, args []string){
 		newpass += string(charset[rand.Intn(len(charset))])
 	}
 
-	fmt.Println(newpass)
+	fmt.Println("Password: " + Green + newpass + Reset)
+	// copy the password to user clipboard
+	clipboard.WriteAll(newpass)
+	fmt.Println(Green + "\nPassword is copied to your clipboard" + Reset)
 }
 
 func init(){

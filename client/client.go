@@ -4,11 +4,11 @@ import (
 	"github.com/redis/go-redis/v9"	
 )
 
-func InitiateClient() *redis.Client {
+func InitiateClient(database int) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
-		DB:       0,
+		DB:       database,
 	})
 	
 	return client

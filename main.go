@@ -12,6 +12,10 @@ import (
 )
 
 func main() {
+	if os.Getuid() == 0 && os.Args[1] == "init" {
+		utils.Setup()
+		return
+	}
 	if !utils.Auth() {
 		os.Exit(1)
 	}

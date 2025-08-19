@@ -36,7 +36,7 @@ func editData(cmd *cobra.Command, args []string) {
 	domain = strings.ToLower(domain)
 	tag = strings.ToLower(tag)
 
-	client := client.InitiateClient()
+	client := client.InitiateClient(0)
 	defer client.Close()
 
 	ctx := context.Background()

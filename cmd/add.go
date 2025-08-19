@@ -37,7 +37,7 @@ func addData(cmd *cobra.Command, args []string){
 		tag: tag,
 	}
 
-	client := client.InitiateClient()
+	client := client.InitiateClient(0)
 	defer client.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

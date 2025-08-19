@@ -2,26 +2,30 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 	"syscall"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
+
+	"github.com/abanoub-samy-farhan/safe-pass/client"
+
+
 )
 
 func Auth() bool {
 
-	auth := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       1,
-	})
+	auth := client.InitiateClient(1)
 	defer auth.Close()
 
-	_, e := auth.Get(context.Background(), "logs").Result()
+	hashedPassword, e := auth.Get(context.Background(), "AUTH").Result()
 	if e == redis.Nil {
-		Setup()
+		fmt.Print("User is not yet configured and has no password, run `sudo safe-pass init setup`")
 		return false
 	}
 
@@ -35,16 +39,12 @@ func Auth() bool {
 			return false
 		}
 
-		encryptedPass, err := auth.Get(context.Background(), "AUTH").Result()
+		err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(pass))
 		if err != nil {
-			fmt.Println("Error reading password:", err)
+			fmt.Print("Wrong password!")
 			return false
 		}
 
-		if DecryptData(encryptedPass) != string(pass) {
-			fmt.Println("Wrong passkey")
-			return false
-		}
 
 		auth.SetEx(context.Background(), "auth-tmp", EncryptData(string(pass)), 5*time.Minute)
 	}
@@ -54,24 +54,36 @@ func Auth() bool {
 }
 
 func Setup() {
-	fmt.Println("Welcome to safe-pass")
-	fmt.Printf("Please enter your master password to set up the database \n\n(Note that it would be unchangable)\nEnter passkey: ")
-	pass, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		fmt.Println("Error reading password:", err)
-		return
+	if os.Getuid() != 0 {
+		panic("Permssion denied")
+	}
+	validate := func(pass string) error {
+		if len(pass) < 8 {
+			return errors.New("password is too short")
+		}
+		return nil
 	}
 
-	encryptedPass := EncryptData(string(pass))
-	auth := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       1,
-	})
+	fmt.Print("Checking Redis database status...")
+	
+	passwordPrompt := promptui.Prompt{
+		Label: "Enter your password (minimum of 8 characters)",
+		Mask: '*',
+		Validate: validate,
+	}
+	
+	password, err := passwordPrompt.Run()
+	if err != nil {
+		fmt.Printf("Error reading password: %v\n", err)
+		return
+	}
+	auth := client.InitiateClient(1)
+	if auth == nil {
+		fmt.Print("Redis is not running or activated, make sure it's working properly.\n")
+		return
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	ctx := context.Background()
+	auth.Set(ctx, "AUTH", string(hashedPassword), 0)
 	defer auth.Close()
-
-	auth.Set(context.Background(), "AUTH", encryptedPass, 0)
-	auth.Set(context.Background(), "logs", true, 0)
-
-	fmt.Println("\nDatabase set up successfully")
 }

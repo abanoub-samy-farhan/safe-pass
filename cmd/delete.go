@@ -38,7 +38,7 @@ func deleteData(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	client := client.InitiateClient()
+	client := client.InitiateClient(0)
 	defer client.Close()
 
 	ctx := context.Background()

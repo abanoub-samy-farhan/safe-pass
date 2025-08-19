@@ -71,7 +71,8 @@ func showData(cmd *cobra.Command, args []string){
 				panic(err)
 			}
 
-			domtagpair := strings.Split(value, "-")[1]
+			parsedKeys := strings.Split(value, "-")
+			domtagpair := parsedKeys[len(parsedKeys)-1]
 			dom := strings.Split(domtagpair, ":")[0]
 			tag := strings.Split(domtagpair, ":")[1]
 

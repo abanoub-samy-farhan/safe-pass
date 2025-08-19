@@ -1,56 +1,33 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"github.com/spf13/cobra"
+	"strings"
+
 	"github.com/abanoub-samy-farhan/safe-pass/client"
 	"github.com/abanoub-samy-farhan/safe-pass/utils"
-	"context"
-	"strings"
-	"time"
+	"github.com/atotto/clipboard"
+
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+
+	"golang.org/x/exp/maps"
 )
 
 var showCmd = &cobra.Command{
 	Use: "show",
-	Short: "Show all data or data by category, domain and tag",
-	Long: `Show all data or data by category, domain and tag. Running it without any flags would 
-	return the database of all the values found
-	Example:
-		safe-pass show
-	or you can be specifying the category:
-		safe-pass show -c <category>
-	or specifiying the domain and/or tag:
-		safe-pass show -c <category> -d <domain> -t <tag>
-	`,
+	Example: "safe-pass show",
 	Run: showData,
 }
 
 func showData(cmd *cobra.Command, args []string){
-	category,_ := cmd.Flags().GetString("category")
-	domain, _ := cmd.Flags().GetString("domain")
-	tag, _ := cmd.Flags().GetString("tag")
-
-	category = strings.ToLower(category)
-	domain = strings.ToLower(domain)
-	tag = strings.ToLower(tag)
 
 	client := client.InitiateClient(0)
 	defer client.Close()
 
 	ctx := context.Background()
-	lookup := "*"
-	if category != ""{
-		lookup += category + "-"
-	}
-	if domain != ""{
-		lookup += domain + ":"
-	}
-	if tag != ""{
-		lookup += tag
-	}
-	lookup = lookup + "*";
-
-	keys := client.Keys(ctx, lookup).Val()
+	keys := client.Keys(ctx, "*").Val()
 	if len(keys) == 0 {
 		fmt.Println("There are no data found matching your request")
 	}
@@ -62,31 +39,49 @@ func showData(cmd *cobra.Command, args []string){
 		parsed[cat] = append(parsed[cat], key)
 	}
 
-	starttime := time.Now()
-	for key, values := range parsed {
-		fmt.Println(Green + "Category: " + key + Reset)
-		for _, value := range values {
-			encryptedData, err := client.Get(ctx, value).Result()
-			if err != nil {
-				panic(err)
-			}
-
-			parsedKeys := strings.Split(value, "-")
-			domtagpair := parsedKeys[len(parsedKeys)-1]
-			dom := strings.Split(domtagpair, ":")[0]
-			tag := strings.Split(domtagpair, ":")[1]
-
-			fmt.Println(Red + "\tDomain: " + dom + "\tTag: " + tag +
-			":" + Reset, utils.DecryptData(encryptedData))
-		}
+	prompt := promptui.Select{
+		Label: "Select a category to show: ",
+		Items: maps.Keys(parsed),
+	}
+	_, selectedCategory, err := prompt.Run()
+	if err != nil {
+		fmt.Println("Prompt failed:", err)
+		return
 	}
 
-	fmt.Println("Time elapsed: ", time.Since(starttime))
+	selectedKeys := parsed[selectedCategory]
+	if len(selectedKeys) == 0 {
+		fmt.Println("No data found in the selected category")
+		return
+	}
+
+	searcher := func (curr string, ind int) bool {
+		curr = strings.ToLower(curr)
+		selected := strings.ToLower(selectedKeys[ind])
+		return strings.Contains(selected, curr)
+	}
+
+	prompt = promptui.Select{
+		Label: "Select a key to show: ",
+		Items: selectedKeys,
+		Searcher: searcher,
+		StartInSearchMode: true,
+	}
+	_, selectedKey, err := prompt.Run()
+	if err != nil {
+		fmt.Println("Prompt failed:", err)
+		return
+	}
+
+	encryptedData, err := client.Get(ctx, selectedKey).Result()
+	if err != nil {
+		panic(err)
+	}
+	data := utils.DecryptData(encryptedData)
+	clipboard.WriteAll(data)
+	fmt.Println(Green + "Data is copied to your clipboard")
 }
 
 func init(){
 	rootCmd.AddCommand(showCmd)
-	showCmd.Flags().StringP("category", "c", "", "Category of the data")
-	showCmd.Flags().StringP("domain", "d", "", "Domain of the data")
-	showCmd.Flags().StringP("tag", "t", "", "Tag of the data")
 }

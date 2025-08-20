@@ -2,22 +2,24 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
-	"encoding/json"
+	"os/exec"
 
 	"github.com/abanoub-samy-farhan/safe-pass/client"
+	"github.com/abanoub-samy-farhan/safe-pass/utils"
 	"github.com/spf13/cobra"
 )
 
 var backupCmd = &cobra.Command{
-	Use: "safe-pass backup",
-	Short: "for making backup snapshot of the current state database",
+	Use: "backup",
+	Short: "Making backup snapshot of the current state database",
 	Run: backupData,
 }
 
 func backupData(cmd *cobra.Command, args []string){
-
+	filename := utils.GetSnapshotName()
 	// open a new file in the location at the backup
 	auth := client.InitiateClient(0)
 	if auth == nil {
@@ -34,14 +36,6 @@ func backupData(cmd *cobra.Command, args []string){
 		return
 	}
 
-
-	tmpFile, err := os.Create("tmp.json")
-	if err != nil {
-		fmt.Println("Error creating temporary file:", err)
-		return
-	}
-	defer tmpFile.Close()
-
 	jsonData := JSONBack{
 		Data: make([]JSONEntry, 0),
 	}
@@ -55,10 +49,25 @@ func backupData(cmd *cobra.Command, args []string){
 		jsonData.Data = append(jsonData.Data, entry)
 	}
 
-	if err := json.NewEncoder(tmpFile).Encode(jsonData); err != nil {
-		fmt.Println("Error writing to temporary file:", err)
-		return
+	plainText, err := json.Marshal(jsonData)
+	if err != nil {
+		fmt.Println("Error happened while converting data to json", err.Error())
 	}
+	cipheredText := utils.EncryptData(string(plainText))
+
+	snapshotPath :=  string(os.Getenv("BACKUP")) + filename
+
+	backupFile, err := os.Create(snapshotPath)
+	if err != nil {
+		fmt.Println("Error happened while opening the backup file")
+	}
+	defer backupFile.Close()
+
+	backupFile.WriteString(cipheredText)
+	compress := exec.Command("gzip", snapshotPath)
+	compress.Run()
+
+	fmt.Println(Green + "Backup is created at: " + snapshotPath)
 }
 
 func init(){

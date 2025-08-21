@@ -33,7 +33,7 @@ Now before using the tool, there are some environment variables that has to be s
 
 In the `setup_envfile.sh`
 ```bash
-KEY= # Place here a key of 32 characters
+KEY= '' # Place here a key of 32 characters
 BACKUP="$HOME/.config/safe-pass" # Don't change this
 
 
@@ -79,7 +79,7 @@ The tool is designed to be used from the command line, and provides a number of 
 The available commands are:
 
 - `add`: Add a password, key or token to the database.
-- `show`: Show all data or data by category, domain and tag.
+- `show`: copies the selected entry to the clipboard using interactive cli tools.
 - `delete`: Delete a password, key or token from the database.
 - `passgen`: Password Generator for making the user's life easier by simply hitting the generation, specifing some flags like:
     - `-l --length`: Determine the length of the password
@@ -144,6 +144,15 @@ Use the arrow keys to navigate: ↓ ↑ → ←
 ? Select a category to show: : 
   ▸ passwords
     tokens
+
+$ safe-pass backup
+Backup is created at: /home/abanoub-aziz/.config/safe-pass/safe-pass-2025-08-21:18:11:01.bin
+
+$ safe-pass restore
+Search: █
+? Select a backup file to restore: : 
+  ▸ .env
+    safe-pass-2025-08-21:18:11:01.bin.gz
 
 ```
 

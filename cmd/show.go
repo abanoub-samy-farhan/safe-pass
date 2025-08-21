@@ -18,6 +18,7 @@ import (
 var showCmd = &cobra.Command{
 	Use: "show",
 	Example: "safe-pass show",
+	Short: "Get a specific entry from the database",
 	Run: showData,
 }
 
@@ -62,7 +63,7 @@ func showData(cmd *cobra.Command, args []string){
 	}
 
 	prompt = promptui.Select{
-		Label: "Select a key to show: ",
+		Label: "Select a key to copy: ",
 		Items: selectedKeys,
 		Searcher: searcher,
 		StartInSearchMode: true,

@@ -55,7 +55,7 @@ func backupData(cmd *cobra.Command, args []string){
 	}
 	cipheredText := utils.EncryptData(string(plainText))
 
-	snapshotPath :=  string(os.Getenv("BACKUP")) + filename
+	snapshotPath :=  string(os.Getenv("BACKUP")) + "/" + filename
 
 	backupFile, err := os.Create(snapshotPath)
 	if err != nil {

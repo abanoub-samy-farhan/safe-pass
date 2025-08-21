@@ -56,7 +56,7 @@ func restoreData(cmd *cobra.Command, args []string) {
 	fmt.Println("Restoring backup: ", chosenBackup)
 
 	// unzip the backup file
-	backupPath := dir + chosenBackup
+	backupPath := dir + "/" + chosenBackup
 	decompress := exec.Command("gzip", "-d", backupPath)
 	decompress.Run()
 	backupPath = strings.TrimSuffix(backupPath, ".gz")

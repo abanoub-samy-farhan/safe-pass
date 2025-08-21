@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"time"
+	"regexp"
+
+
 	"github.com/spf13/cobra"
 	"github.com/abanoub-samy-farhan/safe-pass/client"
 	"github.com/abanoub-samy-farhan/safe-pass/utils"
@@ -13,10 +15,7 @@ import (
 var addCmd = &cobra.Command{
 	Use: "add [password|key|token] -c <category> -d <domain> -t <tag>",
 	Short: "Add a password, key or token to the database",
-	Long: `Add a password, key or token to the database for a specific domain and tag.
-	Example:
-		safe-pass add password -c passwords -d google -t work
-	`,
+	Example: "safe-pass add password -c passwords -d google -t work",
 	Run: addData,
 }
 
@@ -31,17 +30,23 @@ func addData(cmd *cobra.Command, args []string){
 	domain, _:= cmd.Flags().GetString("domain")
 	tag, _ := cmd.Flags().GetString("tag")
 
-	key := Feild{
+	key := Field{
 		category: category,
-		domain: domain,
-		tag: tag,
+		domain:   domain,
+		tag:      tag,
+	}
+	re := regexp.MustCompile(`[-:]`)
+	for _, item := range []string{key.category, key.domain, key.tag} {
+		if re.MatchString(item) {
+			fmt.Println("Category, domain and tag must not contain '-' or ':' characters")
+			return
+		}
 	}
 
 	client := client.InitiateClient(0)
 	defer client.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx := context.Background()
 	value, _ := client.Get(ctx, fmt.Sprintf("%s-%s:%s", key.category, key.domain, key.tag)).Result()
 
 
@@ -63,7 +68,7 @@ func addData(cmd *cobra.Command, args []string){
 	}
 
 	fmt.Println("Your Data is saved successfully!\nRun", Red + 
-	"`safe-pass show -c", key.category, " -d", key.domain,  "-t", key.tag + Reset + "`to view it")
+	"`safe-pass show` to view it" + Reset)
 }
 
 func init(){

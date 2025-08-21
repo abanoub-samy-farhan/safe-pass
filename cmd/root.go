@@ -1,7 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -10,10 +6,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type Feild struct {
+type Field struct {
 	category string
-	domain string
-	tag string
+	domain   string
+	tag      string
+}
+
+type JSONBack struct {
+	Data []JSONEntry `json:"data"`
+}
+
+type JSONEntry struct {
+	Key string `json:"key"`
+	Val string `json:"value"`
 }
 
 var Reset = "\033[0m" 
@@ -34,7 +39,7 @@ var rootCmd = &cobra.Command{
 	Long: `safe-pass is a tool for managing sensitive data such as passwords, keys
 and tokens. It uses a redis database for storing the data, and provides a
 simple and secure way to interact with the data.`,
-	ValidArgs: []string{"add", "show", "delete", "edit", "passgen"},
+	ValidArgs: []string{"add", "delete", "edit", "passgen", "show", "backup", "restore"},
 	Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }
 

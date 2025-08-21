@@ -14,8 +14,6 @@ import (
 	"golang.org/x/term"
 
 	"github.com/abanoub-samy-farhan/safe-pass/client"
-
-
 )
 
 func Auth() bool {
@@ -25,7 +23,7 @@ func Auth() bool {
 
 	hashedPassword, e := auth.Get(context.Background(), "AUTH").Result()
 	if e == redis.Nil {
-		fmt.Print("User is not yet configured and has no password, run `sudo safe-pass init setup`")
+		fmt.Print("User is not yet configured and has no password, run `sudo ./go/bin/safe-pass init` to setup")
 		return false
 	}
 
@@ -45,7 +43,6 @@ func Auth() bool {
 			return false
 		}
 
-
 		auth.SetEx(context.Background(), "auth-tmp", EncryptData(string(pass)), 5*time.Minute)
 	}
 	fmt.Println()
@@ -54,6 +51,7 @@ func Auth() bool {
 }
 
 func Setup() {
+
 	if os.Getuid() != 0 {
 		panic("Permssion denied")
 	}
@@ -63,8 +61,6 @@ func Setup() {
 		}
 		return nil
 	}
-
-	fmt.Print("Checking Redis database status...")
 	
 	passwordPrompt := promptui.Prompt{
 		Label: "Enter your password (minimum of 8 characters)",
@@ -77,13 +73,17 @@ func Setup() {
 		fmt.Printf("Error reading password: %v\n", err)
 		return
 	}
+
+	fmt.Println("Checking Redis database status...")
 	auth := client.InitiateClient(1)
+
 	if auth == nil {
-		fmt.Print("Redis is not running or activated, make sure it's working properly.\n")
+		fmt.Println("Redis is not running or activated, make sure it's working properly.")
 		return
 	}
+	defer auth.Close()
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	ctx := context.Background()
 	auth.Set(ctx, "AUTH", string(hashedPassword), 0)
-	defer auth.Close()
+	fmt.Println("Setup completed Successfully! ;)")
 }

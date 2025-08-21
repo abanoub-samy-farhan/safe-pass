@@ -4,12 +4,15 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
-	"encoding/hex"
+	"os"
 )
 
 func EncryptData(data string) string {
+	
+
 	defer func () {
 		str := recover()
 		if str != nil {
@@ -17,7 +20,7 @@ func EncryptData(data string) string {
 		}
 	}()
 
-	key := []byte("2*EUH$@^9t$yGk6gUr8nzcKsBzf%zHbZ")
+	key := []byte(os.Getenv("KEY"))
 	plaintext := []byte(data)
 	
 	block, err := aes.NewCipher(key)
@@ -43,7 +46,9 @@ func EncryptData(data string) string {
 }
 
 func DecryptData(encrypted string) string {
-	defer func () {
+
+
+	defer func() {
 		str := recover()
 		if str != nil {
 			fmt.Println(str)
@@ -52,7 +57,7 @@ func DecryptData(encrypted string) string {
 
 	chipertext, _ := hex.DecodeString(encrypted);
 
-	key := []byte("2*EUH$@^9t$yGk6gUr8nzcKsBzf%zHbZ")
+	key := []byte(os.Getenv("KEY"))
 
 	block, err := aes.NewCipher(key)
 	if err != nil {

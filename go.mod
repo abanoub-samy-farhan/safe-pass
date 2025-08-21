@@ -1,15 +1,17 @@
 module github.com/abanoub-samy-farhan/safe-pass
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.2
 
 require (
 	github.com/atotto/clipboard v0.1.4
+	github.com/joho/godotenv v1.5.1
 	github.com/manifoldco/promptui v0.9.0
 	github.com/redis/go-redis/v9 v9.12.1
 	github.com/spf13/cobra v1.8.1
 	golang.org/x/crypto v0.41.0
+	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6
 	golang.org/x/term v0.34.0
 )
 

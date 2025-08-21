@@ -1,5 +1,5 @@
 # safe-pass
-a GO CLI Tool for handling password management using Redis database for storing the local encypted passwords. Not only password, you can safe anykind of secure keys and tokens for later use, all in a secure and safe mannar for your convenice :).
+a go cli Tool for handling password management using Redis database for storing the local encrypted passwords. Not only password, you can safe any kind of secret keys and tokens for later use, all in a secure and safe mannar for your convenice :).
 
 NOTE: This is still a beta version of the cli, if you faced any problems please reported through and issue or if you wish to contribute that's completely welcomed, see [Contribution](#contribution).
 
@@ -15,6 +15,7 @@ NOTE: This is still a beta version of the cli, if you faced any problems please 
 
 ## Installation
 
+First, you have to have go installed and added to your PATH so that you can work easily this go project.
 Easy installation just by running the following command:
 
 ```bash
@@ -27,6 +28,30 @@ $ cd safe-pass
 $ go build
 $ go install
 ```
+
+Now before using the tool, there are some environment variables that has to be settled up. all are found in the `setup_envfile.sh` and `setup_redis.sh` (for ensuring you have redis running on your machine).
+
+In the `setup_envfile.sh`
+```bash
+KEY= # Place here a key of 32 characters
+BACKUP="$HOME/.config/safe-pass" # Don't change this
+
+
+mkdir -p $BACKUP
+touch $BACKUP/.env
+
+echo "KEY=$KEY" > $BACKUP/.env
+echo "BACKUP=$BACKUP" >> $BACKUP/.env
+```
+You will have to replace the `KEY` variable with your own 32 character key before running the script.
+
+Before using the tool, the master key has to be setup that can only be done using the root user by running 
+
+```bash
+sudo $GOPATH/bin/safe-pass init
+```
+Replace `GOPATH` with your actual Go workspace path.
+
 Also, for autocompleting feature, you have to run this command for setting up your envorinement according to your system:
 
 - Linux:
@@ -70,9 +95,9 @@ The available commands are:
 | `safe-pass add [password\|key\|token] -c <category> -d <domain> -t <tag>` | Add a password, key or token to the database, NOTE: Don't include hyphins in category, domain or tag | `-c --category`, `-d --domain`, `-t --tag` |
 
 ### `show`
-| Command | Description | Flags |
-| --- | --- | --- |
-| `safe-pass show -c <category> -d <domain> -t <tag>` | Show all data or data by category, domain and tag | `-c --category`, `-d --domain`, `-t --tag` |
+| Command | Description |
+| --- | --- |
+| `safe-pass show` | Copies a single entry to the clipboard |
 
 ### `delete`
 | Command | Description | Flags |
@@ -90,6 +115,16 @@ The available commands are:
 | --- | --- | --- |
 | `safe-pass passgen -l <length> -s <special-characters> -n <numbers>` | Password Generator for making the user's life easier by simply hitting the generation, specifing some flags like: `-l --length`, `-s --special-characters`, `-n --numbers` | `-l --length`, `-s --special-characters`, `-n --numbers` |
 
+### `backup`
+| Command | Description |
+| --- | --- |
+| `safe-pass backup` | Backup the entire database to a file |
+
+### `restore`
+| Command | Description |
+| --- | --- |
+| `safe-pass restore` | Restore the database from a backup file |
+
 ## Examples
 
 ```bash
@@ -104,11 +139,12 @@ $ safe-pass add Newpassword2910 -c password -d example.com -t work
 Your Data is saved successfully!
 Run `safe-pass show -c password  -d example.com -t work`to view it
 
-$ safe-pass show -c password  -d example.com -t work
+$ safe-pass show 
+Use the arrow keys to navigate: ↓ ↑ → ← 
+? Select a category to show: : 
+  ▸ passwords
+    tokens
 
-Category: password
-	Domain: example.com	Tag: work: Newpassword2910
-Time elapsed:  114.465µs
 ```
 
 ## Contribution
@@ -119,11 +155,12 @@ Contributions are welcome! If you'd like to contribute to this project just cont
 
 - [x] Encrypt passwords using `crypto/aes` lib
 - [x] Master Password: Making a local authentication for the user to ensure security of the password saved from frauds
-- [ ] Setup: Making a user-friendly setup, ensuring user have the required dependancies (`redis` for data storage), and setting the Master Password for accessing the data securly.
+- [x] Setup: Making a user-friendly setup, ensuring user have the required dependancies (`redis` for data storage), and setting the Master Password for accessing the data securly.
 - [x] Add data: Adding password or key to the database, including the domain and tag to remeber the usecase of data stored.
 - [x] Retrive data: returning the password of the requested domain.
-- [ ] Export Data: the user could export all data found in the database in an easy formatted form (such as `JSON` or `TXT`)
+- [x] Export Data: the user could export all data found in the database in an easy formatted form (such as `JSON` or `TXT`)
 - [x] Cross-platform compatibility: Making the tool opperating for both `windows` and `linux`. Starting with linux tho.
+- [x] Restoring Data from snapshots exported before
 
 ## License
 

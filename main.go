@@ -7,6 +7,7 @@ package main
 
 import (
 	"os"
+	"os/user"
 	"fmt"
 
 	"github.com/abanoub-samy-farhan/safe-pass/cmd"
@@ -15,7 +16,13 @@ import (
 )
 
 func main() {
-	envFile := os.Getenv("HOME") + "/.config/safe-pass/.env"
+	homeDir := os.Getenv("HOME")
+	if os.Getuid() == 0 {
+		usr, _ := user.Lookup(os.Getenv("SUDO_USER"))
+		homeDir = usr.HomeDir
+	}
+
+	envFile := homeDir + "/.config/safe-pass/.env"
 	err := godotenv.Load(envFile)
 	if err != nil {
 		fmt.Println("Error loading .env file:", err)

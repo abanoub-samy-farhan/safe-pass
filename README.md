@@ -52,6 +52,15 @@ sudo $GOPATH/bin/safe-pass init
 ```
 Replace `GOPATH` with your actual Go workspace path.
 
+Or
+
+you can make your program in an accessible place for the root user (for example in the `usr/local/bin`) by running this
+```bash
+sudo mv $GOPATH/bin/safe-pass /usr/local/bin/
+sudo safe-pass init
+```
+
+
 Also, for autocompleting feature, you have to run this command for setting up your envorinement according to your system:
 
 - Linux:

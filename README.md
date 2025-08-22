@@ -103,7 +103,8 @@ The available commands are:
 | --- | --- | --- |
 | `safe-pass add [password\|key\|token] -c <category> -d <domain> -t <tag>` | Add a password, key or token to the database, NOTE: Don't include hyphins in category, domain or tag | `-c --category`, `-d --domain`, `-t --tag` |
 
-> WARNING: names of categories, domains and tags should not contain the characters `-` or `:`
+> [!WARNING]
+> names of categories, domains and tags should not contain the characters `-` or `:`
 
 ### `show`
 | Command | Description |

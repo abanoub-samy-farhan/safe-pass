@@ -163,7 +163,7 @@ Contributions are welcome! If you'd like to contribute to this project just cont
 - [x] Add data: Adding password or key to the database, including the domain and tag to remeber the usecase of data stored.
 - [x] Retrive data: returning the password of the requested domain.
 - [x] Export Data: the user could export all data found in the database in an easy formatted form (such as `JSON` or `TXT`)
-- [x] Cross-platform compatibility: Making the tool opperating for both `windows` and `linux`. Starting with linux tho.
+- [ ] Cross-platform compatibility: Making the tool opperating for both `windows` and `linux`. Starting with linux tho.
 - [x] Restoring Data from snapshots exported before
 
 ## License

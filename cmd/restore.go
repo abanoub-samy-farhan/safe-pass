@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
+	"regexp"
 
 	"github.com/abanoub-samy-farhan/safe-pass/client"
 	"github.com/abanoub-samy-farhan/safe-pass/utils"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
@@ -31,23 +32,24 @@ func restoreData(cmd *cobra.Command, args []string) {
 
 	var backups []string
 
+	re := regexp.MustCompile(`safe-pass-.*\.bin\.gz`)
 	for _, item := range content {
-		if !item.IsDir() {
+		if !item.IsDir() &&  re.MatchString(item.Name()) {
 			backups = append(backups, item.Name())
 		}
 	}
 
-	searcher := func (input string, index int) bool {
-		return strings.Contains(strings.ToLower(backups[index]), strings.ToLower(input))
-	}
-	prompt := promptui.Select{
-		Label: "Select a backup file to restore: ",
-		Items: backups,
-		Searcher: searcher,
-		StartInSearchMode: true,
-	}
+	// sort backups decendingly
+	sort.Slice(backups, func(i, j int) bool {
+		return backups[i] > backups[j]
+	})
 
-	_ , chosenBackup, err := prompt.Run()
+	chosenBackup, err := utils.PromptSelect(utils.PromptOpts{
+		Message: "Select a backup file to restore: ",
+		Items: backups,
+		UseSearcher: true,
+	})
+
 	if err != nil {
 		fmt.Println("Error while choosing the backup")
 		return
@@ -57,9 +59,11 @@ func restoreData(cmd *cobra.Command, args []string) {
 
 	// unzip the backup file
 	backupPath := dir + "/" + chosenBackup
-	decompress := exec.Command("gzip", "-d", backupPath)
+	decompress := exec.Command("gzip", "-dk", backupPath)
 	decompress.Run()
 	backupPath = strings.TrimSuffix(backupPath, ".gz")
+
+	fmt.Println(backupPath)
 
 	cipheredData, _ := os.ReadFile(backupPath)
 	plainDataString := utils.DecryptData(string(cipheredData))
@@ -78,22 +82,19 @@ func restoreData(cmd *cobra.Command, args []string) {
 	for _, entry := range snapshot.Data {
 		val := 	auth.Get(ctx, entry.Key).Val()
 		if val != "" {
-			overridePrompt := promptui.Prompt{
-				Label:     fmt.Sprintf("Key '%s' already exists. Override", entry.Key),
-				IsConfirm: true,
-			}
-			_, err := overridePrompt.Run()
+			err := utils.PromptConfirm(
+				fmt.Sprintf("Key '%s' already exists. Override", entry.Key))
 			if err != nil {
 				continue
 			}
 		}
 		auth.Set(ctx, entry.Key, entry.Val, 0)
-		fmt.Printf("Key '%s' restored\n", entry.Key)
+		fmt.Println(utils.MakeColored("Green", "Key '" + entry.Key + "' restored"))
 	}
 
-	// recompress the data
-	compress := exec.Command("gzip", backupPath)
-	compress.Run()
+	// remove the decompressed file
+	os.Remove(backupPath)
+	fmt.Println(utils.MakeColored("Green", "Backup restored successfully!"))
 }
 
 func init(){

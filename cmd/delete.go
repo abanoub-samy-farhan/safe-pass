@@ -1,22 +1,22 @@
 package cmd
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/abanoub-samy-farhan/safe-pass/client"
-	"strings"
 	"context"
+	"fmt"
+	"strings"
+
+	"github.com/abanoub-samy-farhan/safe-pass/client"
+	"github.com/abanoub-samy-farhan/safe-pass/utils"
+	"github.com/spf13/cobra"
 )
 
 var deleteCmd = &cobra.Command{
 	Use: "delete -c <category> -d <domain> -t <tag>",
 	Short: "Delete a password, key or token from the database",
 	Long: `Delete a password, key or token from the database for a specific domain and tag.
-	Example:
-		safe-pass delete password -c passwords -d google -t work
-
 	Take Care, this action is IRREVOCABLE
 	`,
+	Example: "safe-pass delete password -c passwords -d google -t work",
 	Run: deleteData,
 }
 
@@ -29,11 +29,13 @@ func deleteData(cmd *cobra.Command, args []string) {
 	domain = strings.ToLower(domain)
 	tag = strings.ToLower(tag)
 
-	var assertion string
-	fmt.Printf("Are you sure you want to delete the data for \nCategory " + Red + category + Reset +
-	", domain " + Red + domain + Reset + " and tag " + Red + tag + Reset + " ? \n\nProceed (Y/n) ")
-	fmt.Scanln(&assertion)
-	if strings.ToUpper(assertion) != "Y" {
+	err := utils.PromptConfirm(
+		fmt.Sprintf("You are about to delete the data for Category %s, domain %s and tag %s, Proceed?", 
+		utils.MakeColored("Green",category), 
+		utils.MakeColored("Green",domain), 
+		utils.MakeColored("Green",tag)),
+	)
+	if err != nil {
 		fmt.Println("Action cancelled")
 		return
 	}
@@ -59,8 +61,8 @@ func deleteData(cmd *cobra.Command, args []string) {
 		fmt.Println("There are no data found matching your request")
 	}
 
-	_, err := client.Del(ctx, keys...).Result()
-	if err != nil {
+	_, err2 := client.Del(ctx, keys...).Result()
+	if err2 != nil {
 		fmt.Println("An error occurred while deleting the data: ", err)
 		return
 	}

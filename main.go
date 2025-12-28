@@ -15,24 +15,27 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const envFilePath string = "/.config/safe-pass/.env"
+
 func main() {
+	if os.Getuid() == 0 && os.Args[1] == "init" {
+		utils.Setup()
+		return
+	}
 	homeDir := os.Getenv("HOME")
 	if os.Getuid() == 0 {
 		usr, _ := user.Lookup(os.Getenv("SUDO_USER"))
 		homeDir = usr.HomeDir
 	}
 
-	envFile := homeDir + "/.config/safe-pass/.env"
+	envFile := homeDir + envFilePath
 	err := godotenv.Load(envFile)
 	if err != nil {
 		fmt.Println("Error loading .env file:", err)
-		fmt.Println("Please run `sudo /go/bin/safe-pass init` to configure the environment")
+		fmt.Println("Please run", utils.MakeColored("Green", "sudo safe-pass init"), "to configure the environment")
 		return
 	}
-	if os.Getuid() == 0 && os.Args[1] == "init" {
-		utils.Setup()
-		return
-	}
+	
 	if !utils.Auth() {
 		os.Exit(1)
 	}

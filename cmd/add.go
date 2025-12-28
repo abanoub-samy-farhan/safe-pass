@@ -13,9 +13,9 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use: "add [password|key|token] -c <category> -d <domain> -t <tag>",
-	Short: "Add a password, key or token to the database",
-	Example: "safe-pass add password -c passwords -d google -t work",
+	Use: "add '[password|key|token]' -c [category] -d [domain] -t [tag]",
+	Short: "Add a password, key or token to the database, you can specify category, domain and tag",
+	Example: "safe-pass add 'secret-password'",
 	Run: addData,
 }
 
@@ -37,8 +37,8 @@ func addData(cmd *cobra.Command, args []string){
 	}
 	re := regexp.MustCompile(`[-:]`)
 	for _, item := range []string{key.category, key.domain, key.tag} {
-		if re.MatchString(item) {
-			fmt.Println("Category, domain and tag must not contain '-' or ':' characters")
+		if re.MatchString(item) || item == "" {
+			fmt.Println("Category, Domain and Tag cannot contain '-' or ':' characters and cannot be empty")
 			return
 		}
 	}

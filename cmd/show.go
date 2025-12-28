@@ -9,7 +9,6 @@ import (
 	"github.com/abanoub-samy-farhan/safe-pass/utils"
 	"github.com/atotto/clipboard"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/exp/maps"
@@ -20,6 +19,15 @@ var showCmd = &cobra.Command{
 	Example: "safe-pass show",
 	Short: "Get a specific entry from the database",
 	Run: showData,
+}
+
+func ParseKey(key string) (string, string, string, string) {
+	splitted := strings.Split(key, "-")
+	cat, specifier := splitted[0], splitted[1]
+	dom, tag := strings.Split(specifier, ":")[0], strings.Split(specifier, ":")[1]
+	displayed := cat + " -> " + utils.MakeColored("Green", dom) + 
+	":" + utils.MakeColored("Green", tag)
+	return cat, dom, tag, displayed
 }
 
 func showData(cmd *cobra.Command, args []string){
@@ -36,43 +44,42 @@ func showData(cmd *cobra.Command, args []string){
 	parsed := make(map[string][]string)
 
 	for _, key := range keys {
-		cat := strings.Split(key, "-")[0]
+		cat, _, _, _ := ParseKey(key)
 		parsed[cat] = append(parsed[cat], key)
 	}
 
-	prompt := promptui.Select{
-		Label: "Select a category to show: ",
+	selectedCategory, err := utils.PromptSelect(utils.PromptOpts{
+		Message: "Select a category to show: ",
 		Items: maps.Keys(parsed),
-	}
-	_, selectedCategory, err := prompt.Run()
+	})
 	if err != nil {
-		fmt.Println("Prompt failed:", err)
 		return
 	}
-
 	selectedKeys := parsed[selectedCategory]
+
+	// make a list of displayed keys for the selected category
+	displayedKeys := make(map[string]string)
+	for _, key := range selectedKeys {
+		_, _, _, dispKey := ParseKey(key)
+		displayedKeys[dispKey] = key
+	}
+
 	if len(selectedKeys) == 0 {
 		fmt.Println("No data found in the selected category")
 		return
 	}
 
-	searcher := func (curr string, ind int) bool {
-		curr = strings.ToLower(curr)
-		selected := strings.ToLower(selectedKeys[ind])
-		return strings.Contains(selected, curr)
-	}
+	selectedDisplayedKey, err := utils.PromptSelect(utils.PromptOpts{
+		Message: "Select an entry to show: ",
+		Items: maps.Keys(displayedKeys),
+		UseSearcher: true,
+	})
 
-	prompt = promptui.Select{
-		Label: "Select a key to copy: ",
-		Items: selectedKeys,
-		Searcher: searcher,
-		StartInSearchMode: true,
-	}
-	_, selectedKey, err := prompt.Run()
 	if err != nil {
-		fmt.Println("Prompt failed:", err)
 		return
 	}
+
+	selectedKey := displayedKeys[selectedDisplayedKey]
 
 	encryptedData, err := client.Get(ctx, selectedKey).Result()
 	if err != nil {
@@ -80,7 +87,7 @@ func showData(cmd *cobra.Command, args []string){
 	}
 	data := utils.DecryptData(encryptedData)
 	clipboard.WriteAll(data)
-	fmt.Println(Green + "Data is copied to your clipboard")
+	fmt.Println(utils.MakeColored("Green", "Data is copied to your clipboard"))
 }
 
 func init(){

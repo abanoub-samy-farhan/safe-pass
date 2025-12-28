@@ -23,7 +23,7 @@ func Auth() bool {
 
 	hashedPassword, e := auth.Get(context.Background(), "AUTH").Result()
 	if e == redis.Nil {
-		fmt.Print("User is not yet configured and has no password, run `sudo ./go/bin/safe-pass init` to setup")
+		fmt.Print("User is not yet configured and has no password, run `sudo safe-pass init` to setup")
 		return false
 	}
 

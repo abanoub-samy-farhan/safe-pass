@@ -1,22 +1,20 @@
-KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n') # auto-generated random key
-HOMEDIR="$HOME/.config/safe-pass"
-BACKUP=$HOMEDIR/backups
-
+# fail early on errors
+set -euo pipefail
 
 if [[ $EUID -ne 0 ]]; then
     echo "This script should be run with root user"
     exit 1
 fi
 
-mkdir -p $BACKUP
-touch $HOMEDIR/.env
+if [ -z "${SUDO_USER:-}" ]; then
+    echo "This script must be run via sudo, not directly as root"
+    exit 1
+fi
 
-echo "KEY=$KEY" > $HOMEDIR/.env
-echo "BACKUP=$BACKUP" >> $HOMEDIR/.env
-
-chmod 440 $HOMEDIR/.env
+# Enter your Go binary path (use `which go` to find it if necessary)
+GO=
 
 # Building the project and moving the binary to /usr/local/bin
-go build -o /usr/local/bin/safe-pass
+$GO build -o /usr/local/bin/safe-pass
 
 echo "Setup completed successfully. You can now run 'safe-pass' command."

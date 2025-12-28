@@ -15,67 +15,51 @@ NOTE: This is still a beta version of the cli, if you faced any problems please 
 
 ## Installation
 
-First, you have to have go installed and added to your PATH so that you can work easily this go project.
-Easy installation just by running the following command:
+First, you have to have `go` installed and added to your `PATH` so that you can work easily this go project.
+Next you have to set the path for `go` in the `setup.sh` file (use `which go` to know the path for go like this).
+```bash
+$ which go
+/usr/local/go/bin/go
+```
+
+Copy it, and paste it here
+```bash
+# Enter your Go binary path (use `which go` to find it if necessary)
+GO= 
+```
+Easy installation just by running the setup file as a root:
 
 ```bash
-$ go install github.com/abanoub-samy-farhan/safe-pass
+$ sudo bash setup_redis.sh # if you don't have redis installed
+$ sudo bash setup_envfile # must do
+$ sudo bash setup.sh
 ```
-or 
+or you can do the `setup` mannually if you would like using the following commands.
 ```bash
 $ git clone https://github.com/abanoub-samy-farhan/safe-pass
 $ cd safe-pass
 $ go build
 $ go install
+$ mv /path/to/go/bin/safe-pass /usr/local/bin # or any path that's included in the $PATH of the system, to know them do `echo $PATH`
 ```
 
 Now before using the tool, there are some environment variables that has to be settled up. all are found in the `setup_envfile.sh` and `setup_redis.sh` (for ensuring you have redis running on your machine).
 
-In the `setup_envfile.sh`
-```bash
-KEY= '' # Place here a key of 32 characters
-BACKUP="$HOME/.config/safe-pass" # Don't change this
-
-
-mkdir -p $BACKUP
-touch $BACKUP/.env
-
-echo "KEY=$KEY" > $BACKUP/.env
-echo "BACKUP=$BACKUP" >> $BACKUP/.env
-```
-You will have to replace the `KEY` variable with your own 32 character key before running the script.
-
 Before using the tool, the master key has to be setup that can only be done using the root user by running 
 
 ```bash
-sudo $GOPATH/bin/safe-pass init
-```
-Replace `GOPATH` with your actual Go workspace path.
-
-Or
-
-you can make your program in an accessible place for the root user (for example in the `usr/local/bin`) by running this
-```bash
-sudo mv $GOPATH/bin/safe-pass /usr/local/bin/
 sudo safe-pass init
 ```
-
+or if you didn't placed the binary into accessible path to your root system either using `setup.sh` or mannually you can use this (it's more recommended to put your binary in accessible path for ease of use)
+```bash
+sudo $GOPATH/bin/safe-pass init 
+```
 
 Also, for autocompleting feature, you have to run this command for setting up your envorinement according to your system:
 
-- Linux:
+- Linux (Ubuntu):
 ```bash
-$ safe-pass completion bash > /etc/bash_completion.d/safe-pass
-```
-
-- MacOS:
-```bash
-$ safe-pass completion bash > $(brew --prefix)/etc/bash_completion.d/safe-pass
-```
-
-- Windows:
-```cmd
-> safe-pass completion powershell > safe-pass.ps1
+$ sudo safe-pass completion bash | sudo tee /etc/bash_completion.d/safe-pass > /dev/null
 ```
 
 ## Usage
@@ -116,7 +100,7 @@ The available commands are:
 | --- | --- | --- |
 | `safe-pass delete -c <category> -d <domain> -t <tag>` | Delete a password, key or token from the database | `-c --category`, `-d --domain`, `-t --tag` |
 
-### `edit`
+### `edit` (deprecated)
 | Command | Description | Flags |
 | --- | --- | --- |
 | `safe-pass edit -c <category> -d <domain> -t <tag>` | Edit a password, key or token from the database | `-c --category`, `-d --domain`, `-t --tag` |
@@ -146,10 +130,10 @@ $ safe-pass passgen -l 12 -s true -n true
 Password: zN7^Tr%H4Vjy
 Password is copied to your clipboard
 
-$ safe-pass add Newpassword2910 -c password -d example.com -t work
+$ safe-pass add 'Newpassword2910' -c password -d example.com -t work
 
 Your Data is saved successfully!
-Run `safe-pass show -c password  -d example.com -t work`to view it
+Run `safe-pass show` to view it
 
 $ safe-pass show 
 Use the arrow keys to navigate: ↓ ↑ → ← 
@@ -158,13 +142,12 @@ Use the arrow keys to navigate: ↓ ↑ → ←
     tokens
 
 $ safe-pass backup
-Backup is created at: /home/abanoub-aziz/.config/safe-pass/safe-pass-2025-08-21:18:11:01.bin
+Backup is created at: /home/abanoub-aziz/.config/safe-pass/backups/safe-pass-2025-08-21:18:11:01.bin
 
 $ safe-pass restore
 Search: █
 ? Select a backup file to restore: : 
-  ▸ .env
-    safe-pass-2025-08-21:18:11:01.bin.gz
+  ▸ safe-pass-2025-08-21:18:11:01.bin.gz
 
 ```
 
